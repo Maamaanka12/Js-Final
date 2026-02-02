@@ -4,320 +4,239 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>SkyBound Travels - Ticket Booking</title>
-    <!-- Tailwind CSS for styling -->
+    <!-- Tailwind CSS for utility styling -->
     <script src="https://cdn.tailwindcss.com"></script>
     <!-- Font Awesome for Icons -->
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
     <!-- Google Fonts -->
     <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;500;600;700&display=swap" rel="stylesheet">
     
+    <script>
+        // Extending Tailwind with your specific brand colors
+        tailwind.config = {
+            theme: {
+                extend: {
+                    colors: {
+                        burgundy: '#730000',
+                        champagne: '#C5A880',
+                        offwhite: '#F9F7F4'
+                    }
+                }
+            }
+        }
+    </script>
+
     <style>
-        /* Base font setting */
         body {
             font-family: 'Poppins', sans-serif;
-            background-color: #f3f4f6; /* Light gray background */
+            background-color: #f9f7f4;
+            overflow-x: hidden;
         }
-        /* Animation for page transitions */
+        /* Smooth entry animation for section switching */
         .fade-in {
-            animation: fadeIn 0.4s ease-in-out;
+            animation: fadeIn 0.5s ease-out forwards;
         }
         @keyframes fadeIn {
-            from { opacity: 0; transform: translateY(10px); }
+            from { opacity: 0; transform: translateY(20px); }
             to { opacity: 1; transform: translateY(0); }
         }
-        /* CSS for the ticket "cutout" circles effect */
-        .ticket-cutout {
-            position: relative;
+
+        /* Continuous scrolling animation for the background text */
+        .marquee {
+            white-space: nowrap;
+            overflow: hidden;
+            display: inline-block;
+            animation: marquee 35s linear infinite;
         }
-        .ticket-cutout::before, .ticket-cutout::after {
-            content: '';
-            position: absolute;
-            height: 20px;
-            width: 20px;
-            background-color: #f3f4f6; /* Match body bg to create invisible hole */
-            border-radius: 50%;
-            top: 50%;
-            transform: translateY(-50%);
+        @keyframes marquee {
+            0% { transform: translateX(0); }
+            100% { transform: translateX(-50%); }
         }
-        .ticket-cutout::before { left: -10px; }
-        .ticket-cutout::after { right: -10px; }
     </style>
 </head>
 <body class="text-gray-800 flex flex-col min-h-screen">
 
-    <!-- Navigation Bar -->
-    <!-- Removed 'sticky top-0' so it scrolls away with the page as requested -->
-    <nav class="bg-blue-900 text-white shadow-lg relative z-50">
-        <div class="max-w-6xl mx-auto px-4">
-            <div class="flex justify-between items-center h-16">
-                <!-- Logo area -->
-                <div class="flex items-center cursor-pointer" onclick="navigateTo('home')">
-                    <i class="fa-solid fa-plane-departure text-2xl mr-2 text-blue-400"></i>
-                    <span class="font-bold text-xl tracking-wide">SkyBound</span>
+    <!-- Navigation -->
+    <nav class="bg-burgundy text-white shadow-2xl relative z-50">
+        <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+            <div class="flex justify-between items-center h-20">
+                <!-- Logo -->
+                <div class="flex items-center cursor-pointer group" onclick="navigateTo('home')">
+                    <div class="bg-champagne p-2 rounded-lg mr-3 transform group-hover:rotate-12 transition">
+                        <i class="fa-solid fa-plane-up text-xl text-burgundy"></i>
+                    </div>
+                    <span class="font-bold text-xl sm:text-2xl tracking-tighter uppercase">Sky<span class="text-champagne">Bound</span></span>
                 </div>
                 
-                <!-- Desktop Menu Links -->
-                <div class="hidden md:flex space-x-8">
-                    <button onclick="navigateTo('home')" class="hover:text-blue-300 transition font-medium">Home</button>
-                    <button onclick="navigateTo('book')" class="hover:text-blue-300 transition font-medium">Book Ticket</button>
-                    <button onclick="navigateTo('my-tickets')" class="hover:text-blue-300 transition font-medium">My Tickets</button>
-                    <button onclick="navigateTo('about')" class="hover:text-blue-300 transition font-medium">About</button>
+                <!-- Desktop Menu -->
+                <div class="hidden md:flex space-x-8 lg:space-x-12">
+                    <button onclick="navigateTo('home')" class="hover:text-champagne transition font-bold text-xs uppercase tracking-widest">Home</button>
+                    <button onclick="navigateTo('book')" class="hover:text-champagne transition font-bold text-xs uppercase tracking-widest">Book Ticket</button>
+                    <button onclick="navigateTo('my-tickets')" class="hover:text-champagne transition font-bold text-xs uppercase tracking-widest">My Vault</button>
+                    <button onclick="navigateTo('about')" class="hover:text-champagne transition font-bold text-xs uppercase tracking-widest">About</button>
                 </div>
 
-                <!-- Mobile Menu Button (Hamburger) -->
+                <!-- Mobile Menu Button -->
                 <div class="md:hidden flex items-center">
-                    <button onclick="toggleMobileMenu()" class="text-white hover:text-blue-300 focus:outline-none">
-                        <i class="fa-solid fa-bars text-2xl"></i>
+                    <button onclick="toggleMobileMenu()" class="text-champagne p-2 rounded-lg bg-white/5">
+                        <i id="menu-icon" class="fa-solid fa-bars-staggered text-xl"></i>
                     </button>
                 </div>
             </div>
         </div>
-        <!-- Mobile Dropdown Menu -->
-        <div id="mobile-menu" class="hidden md:hidden bg-blue-800 pb-4">
-            <button onclick="navigateTo('home')" class="block w-full text-left px-4 py-2 hover:bg-blue-700">Home</button>
-            <button onclick="navigateTo('book')" class="block w-full text-left px-4 py-2 hover:bg-blue-700">Book Ticket</button>
-            <button onclick="navigateTo('my-tickets')" class="block w-full text-left px-4 py-2 hover:bg-blue-700">My Tickets</button>
-            <button onclick="navigateTo('about')" class="block w-full text-left px-4 py-2 hover:bg-blue-700">About</button>
+        <!-- Mobile Dropdown -->
+        <div id="mobile-menu" class="hidden md:hidden bg-[#5a0000] border-t border-burgundy transition-all">
+            <div class="flex flex-col p-4 space-y-2">
+                <button onclick="navigateTo('home')" class="w-full text-left px-6 py-4 rounded-xl hover:bg-burgundy font-bold">Home</button>
+                <button onclick="navigateTo('book')" class="w-full text-left px-6 py-4 rounded-xl hover:bg-burgundy font-bold">Book Ticket</button>
+                <button onclick="navigateTo('my-tickets')" class="w-full text-left px-6 py-4 rounded-xl hover:bg-burgundy font-bold">My Vault</button>
+                <button onclick="navigateTo('about')" class="w-full text-left px-6 py-4 rounded-xl hover:bg-burgundy font-bold">About</button>
+            </div>
         </div>
     </nav>
 
-    <!-- Main Content Area where pages are swapped -->
-    <main class="flex-grow container mx-auto px-4 py-8">
+    <!-- Main Content Container -->
+    <main class="flex-grow">
 
-        <!-- PAGE 1: HOME PAGE -->
-        <section id="home-page" class="fade-in block">
-            <div class="bg-white rounded-2xl shadow-xl overflow-hidden">
-                <div class="md:flex">
-                    <!-- Hero Text -->
-                    <div class="md:w-1/2 p-8 md:p-12 flex flex-col justify-center bg-gradient-to-br from-blue-600 to-blue-800 text-white">
-                        <h1 class="text-4xl md:text-5xl font-bold mb-4">Travel the world with ease.</h1>
-                        <p class="text-blue-100 mb-8 text-lg">Book flights instantly, manage your tickets locally. Valid for 7 days.</p>
-                        <div class="flex gap-4">
-                            <button onclick="navigateTo('book')" class="bg-white text-blue-700 px-6 py-3 rounded-full font-bold shadow-lg hover:bg-blue-50 transition transform hover:-translate-y-1">
-                                Book Now
-                            </button>
-                            <button onclick="navigateTo('my-tickets')" class="border-2 border-white text-white px-6 py-3 rounded-full font-bold hover:bg-white hover:text-blue-700 transition">
-                                My Tickets
-                            </button>
+        <!-- HOME PAGE SECTION -->
+        <section id="home-page" class="fade-in block px-4 py-8 sm:py-12 lg:py-16">
+            <div class="max-w-7xl mx-auto">
+                <div class="relative rounded-[2.5rem] overflow-hidden shadow-2xl bg-burgundy">
+                    <div class="absolute inset-0 opacity-10">
+                        <div class="absolute top-0 left-0 w-full h-full marquee flex items-center">
+                            <span class="text-[120px] font-black text-white px-20 uppercase">London Tokyo Dubai Singapore New York Rome Paris</span>
+                            <span class="text-[120px] font-black text-white px-20 uppercase">London Tokyo Dubai Singapore New York Rome Paris</span>
                         </div>
                     </div>
-                    <!-- Decorative Graphic -->
-                    <div class="md:w-1/2 relative h-64 md:h-auto bg-gray-200">
-                        <div class="absolute inset-0 bg-blue-100 flex items-center justify-center overflow-hidden">
-                            <i class="fa-solid fa-earth-americas text-9xl text-blue-200 opacity-50 absolute -right-10 -bottom-10"></i>
-                            <i class="fa-solid fa-plane text-6xl text-blue-400 absolute top-10 left-10 transform -rotate-12"></i>
-                            <!-- Mock Ticket UI element -->
-                            <div class="text-center z-10 p-6">
-                                <div class="bg-white p-4 rounded-lg shadow-md max-w-xs mx-auto transform rotate-3">
-                                    <div class="flex justify-between items-center mb-2 border-b pb-2 border-dashed border-gray-300">
-                                        <span class="font-bold text-blue-800">NYC</span>
-                                        <i class="fa-solid fa-plane text-gray-400 text-xs"></i>
-                                        <span class="font-bold text-blue-800">LDN</span>
+                    <div class="relative z-10 flex flex-col lg:flex-row min-h-[600px]">
+                        <div class="lg:w-3/5 p-8 sm:p-12 lg:p-20 flex flex-col justify-center text-white">
+                            <span class="inline-block px-4 py-1 bg-champagne/20 text-champagne text-[10px] font-black rounded-full mb-6 self-start uppercase tracking-widest">Premium Flight Experience</span>
+                            <h1 class="text-4xl sm:text-6xl font-black mb-6 leading-[1.1]">Elite Travel <br><span class="text-champagne italic">Redefined.</span></h1>
+                            <p class="text-gray-300 mb-10 text-lg max-w-lg leading-relaxed font-light">Welcome to SkyBound. Issue travel passes instantly and store them in your local encrypted vault.</p>
+                            <div class="flex flex-col sm:flex-row gap-4">
+                                <button onclick="navigateTo('book')" class="bg-champagne text-burgundy px-10 py-5 rounded-2xl font-black shadow-2xl hover:bg-white transition-all transform hover:-translate-y-1 active:scale-95 text-sm uppercase tracking-wider">Reservations</button>
+                                <button onclick="navigateTo('my-tickets')" class="bg-white/10 backdrop-blur-md border border-white/20 text-white px-10 py-5 rounded-2xl font-black hover:bg-white/20 transition-all transform hover:-translate-y-1 text-sm uppercase tracking-wider">My Vault</button>
+                            </div>
+                        </div>
+                        <div class="lg:w-2/5 p-8 lg:p-12 flex items-center justify-center">
+                            <div class="relative w-full max-w-sm">
+                                <div class="absolute -inset-4 bg-champagne/20 blur-3xl rounded-full"></div>
+                                <div class="relative bg-white p-8 rounded-[2rem] shadow-2xl transform rotate-3 hover:rotate-0 transition duration-500">
+                                    <div class="flex justify-between items-center mb-8 border-b border-gray-50 pb-6">
+                                        <div class="text-burgundy">
+                                            <p class="text-[10px] font-bold uppercase text-gray-400">Boarding</p>
+                                            <p class="text-3xl font-black uppercase">LHR</p>
+                                        </div>
+                                        <div class="flex flex-col items-center"><i class="fa-solid fa-plane text-champagne text-xl"></i><div class="w-16 h-0.5 bg-gray-100 my-1"></div></div>
+                                        <div class="text-right text-burgundy">
+                                            <p class="text-[10px] font-bold uppercase text-gray-400">Arrival</p>
+                                            <p class="text-3xl font-black uppercase">HND</p>
+                                        </div>
                                     </div>
-                                    <div class="text-xs text-gray-500">Boarding: 10:45 AM</div>
+                                    <div class="space-y-4">
+                                        <div class="flex justify-between text-xs"><span class="text-gray-400 font-bold uppercase">Traveler</span><span class="text-burgundy font-black uppercase">A. Mohamed</span></div>
+                                        <div class="flex justify-between text-xs"><span class="text-gray-400 font-bold uppercase">Status</span><span class="text-champagne font-black uppercase">Priority</span></div>
+                                    </div>
                                 </div>
                             </div>
                         </div>
                     </div>
                 </div>
             </div>
-
-            <!-- Feature Highlights -->
-            <div class="grid grid-cols-1 md:grid-cols-3 gap-6 mt-12">
-                <div class="bg-white p-6 rounded-xl shadow-md border-l-4 border-blue-500">
-                    <div class="w-12 h-12 bg-blue-100 rounded-full flex items-center justify-center mb-4 text-blue-600">
-                        <i class="fa-solid fa-bolt text-xl"></i>
-                    </div>
-                    <h3 class="font-bold text-xl mb-2">Instant Booking</h3>
-                    <p class="text-gray-600 text-sm">Fill in your details and generate a ticket instantly. No waiting lines.</p>
-                </div>
-                <div class="bg-white p-6 rounded-xl shadow-md border-l-4 border-green-500">
-                    <div class="w-12 h-12 bg-green-100 rounded-full flex items-center justify-center mb-4 text-green-600">
-                        <i class="fa-solid fa-clock text-xl"></i>
-                    </div>
-                    <h3 class="font-bold text-xl mb-2">7-Day Validity</h3>
-                    <p class="text-gray-600 text-sm">Tickets remain active for 7 days after booking. Use them before they expire!</p>
-                </div>
-                <div class="bg-white p-6 rounded-xl shadow-md border-l-4 border-orange-500">
-                    <div class="w-12 h-12 bg-orange-100 rounded-full flex items-center justify-center mb-4 text-orange-600">
-                        <i class="fa-solid fa-user-shield text-xl"></i>
-                    </div>
-                    <h3 class="font-bold text-xl mb-2">Secure Storage</h3>
-                    <p class="text-gray-600 text-sm">Your data is stored safely in your browser's local storage.</p>
-                </div>
-            </div>
         </section>
 
-        <!-- PAGE 2: BOOKING PAGE -->
-        <section id="book-page" class="hidden fade-in">
+        <!-- BOOKING PAGE SECTION -->
+        <section id="book-page" class="hidden fade-in px-4 py-12">
             <div class="max-w-2xl mx-auto">
-                <div class="bg-white rounded-2xl shadow-xl p-8 border-t-8 border-blue-600">
-                    <h2 class="text-3xl font-bold text-gray-800 mb-6 flex items-center">
-                        <i class="fa-solid fa-ticket text-blue-600 mr-3"></i> Book Your Flight
-                    </h2>
-                    
-                    <form id="bookingForm" onsubmit="handleBooking(event)">
-                        <!-- Passenger Name -->
-                        <div class="mb-5">
-                            <label class="block text-gray-700 text-sm font-bold mb-2" for="fullName">Passenger Name</label>
-                            <input type="text" id="fullName" required placeholder="e.g. John Doe"
-                                class="w-full px-4 py-3 rounded-lg border border-gray-300 focus:outline-none focus:border-blue-500 focus:ring-2 focus:ring-blue-200 transition">
+                <div class="bg-white rounded-[2.5rem] shadow-2xl p-8 sm:p-12 border-t-[12px] border-burgundy">
+                    <div class="text-center mb-10">
+                        <h2 class="text-3xl font-black text-burgundy uppercase tracking-tight">Issue Ticket</h2>
+                        <p class="text-gray-400 text-[10px] font-black mt-2 uppercase tracking-widest">Electronic Reservation Desk</p>
+                    </div>
+                    <form id="bookingForm" onsubmit="handleBooking(event)" class="space-y-6">
+                        <div>
+                            <label class="block text-burgundy text-[10px] font-black uppercase mb-2 tracking-widest" for="fullName">Full Name</label>
+                            <input type="text" id="fullName" required placeholder="Passenger Identity" class="w-full px-6 py-4 rounded-2xl border-2 border-gray-50 focus:outline-none focus:border-champagne transition bg-gray-50 font-bold">
                         </div>
-
-                        <!-- Class Selection Dropdown -->
-                        <div class="mb-5">
-                            <label class="block text-gray-700 text-sm font-bold mb-2" for="flightClass">Class</label>
-                            <select id="flightClass" required
-                                class="w-full px-4 py-3 rounded-lg border border-gray-300 focus:outline-none focus:border-blue-500 focus:ring-2 focus:ring-blue-200 transition bg-white">
-                                <option value="Economy">Economy</option>
-                                <option value="Business">Business Class</option>
-                                <option value="First Class">First Class</option>
-                            </select>
-                        </div>
-
-                        <!-- Airports -->
-                        <div class="grid grid-cols-1 md:grid-cols-2 gap-5 mb-5">
+                        <div class="grid grid-cols-2 gap-6">
                             <div>
-                                <label class="block text-gray-700 text-sm font-bold mb-2" for="fromAirport">From (Code)</label>
-                                <input type="text" id="fromAirport" required placeholder="e.g. JFK" maxlength="3" oninput="this.value = this.value.toUpperCase()"
-                                    class="w-full px-4 py-3 rounded-lg border border-gray-300 focus:outline-none focus:border-blue-500 focus:ring-2 focus:ring-blue-200 transition">
+                                <label class="block text-burgundy text-[10px] font-black uppercase mb-2 tracking-widest" for="fromAirport">Origin</label>
+                                <input type="text" id="fromAirport" required placeholder="NYC" maxlength="3" oninput="this.value = this.value.toUpperCase()" class="w-full px-6 py-4 rounded-2xl border-2 border-gray-50 focus:outline-none focus:border-champagne transition bg-gray-50 font-black text-center text-xl">
                             </div>
                             <div>
-                                <label class="block text-gray-700 text-sm font-bold mb-2" for="toAirport">To (Code)</label>
-                                <input type="text" id="toAirport" required placeholder="e.g. LHR" maxlength="3" oninput="this.value = this.value.toUpperCase()"
-                                    class="w-full px-4 py-3 rounded-lg border border-gray-300 focus:outline-none focus:border-blue-500 focus:ring-2 focus:ring-blue-200 transition">
+                                <label class="block text-burgundy text-[10px] font-black uppercase mb-2 tracking-widest" for="toAirport">Dest.</label>
+                                <input type="text" id="toAirport" required placeholder="LHR" maxlength="3" oninput="this.value = this.value.toUpperCase()" class="w-full px-6 py-4 rounded-2xl border-2 border-gray-50 focus:outline-none focus:border-champagne transition bg-gray-50 font-black text-center text-xl">
                             </div>
                         </div>
-
-                        <!-- Date & Time -->
-                        <div class="grid grid-cols-1 md:grid-cols-2 gap-5 mb-6">
+                        <div class="grid grid-cols-1 sm:grid-cols-2 gap-6">
                             <div>
-                                <label class="block text-gray-700 text-sm font-bold mb-2" for="flightDate">Date</label>
-                                <input type="date" id="flightDate" required
-                                    class="w-full px-4 py-3 rounded-lg border border-gray-300 focus:outline-none focus:border-blue-500 focus:ring-2 focus:ring-blue-200 transition">
+                                <label class="block text-burgundy text-[10px] font-black uppercase mb-2 tracking-widest" for="flightClass">Class</label>
+                                <select id="flightClass" required class="w-full px-6 py-4 rounded-2xl border-2 border-gray-50 focus:outline-none focus:border-champagne transition bg-gray-50 font-bold cursor-pointer">
+                                    <option value="Economy">Economy</option>
+                                    <option value="Business">Business</option>
+                                    <option value="First Class">First Class</option>
+                                </select>
                             </div>
                             <div>
-                                <label class="block text-gray-700 text-sm font-bold mb-2" for="flightTime">Time</label>
-                                <input type="time" id="flightTime" required
-                                    class="w-full px-4 py-3 rounded-lg border border-gray-300 focus:outline-none focus:border-blue-500 focus:ring-2 focus:ring-blue-200 transition">
+                                <label class="block text-burgundy text-[10px] font-black uppercase mb-2 tracking-widest" for="flightDate">Date</label>
+                                <input type="date" id="flightDate" required class="w-full px-6 py-4 rounded-2xl border-2 border-gray-50 focus:outline-none focus:border-champagne transition bg-gray-50 font-bold">
                             </div>
                         </div>
-
-                        <!-- Info Note -->
-                        <div class="bg-blue-50 text-blue-700 px-4 py-3 rounded-lg text-sm mb-6 flex items-start">
-                            <i class="fa-solid fa-circle-info mt-1 mr-2"></i>
-                            <p>Ticket valid for 7 days from booking date. Expired tickets cannot be used.</p>
-                        </div>
-
-                        <!-- Buttons -->
-                        <div class="flex items-center justify-end">
-                            <button type="button" onclick="navigateTo('home')" class="text-gray-500 hover:text-gray-700 font-medium mr-4">Cancel</button>
-                            <button type="submit" class="bg-blue-600 text-white px-8 py-3 rounded-lg font-bold shadow-lg hover:bg-blue-700 hover:shadow-xl transition transform hover:-translate-y-1">
-                                Confirm Booking
-                            </button>
-                        </div>
+                        <button type="submit" class="w-full bg-burgundy text-white py-5 rounded-2xl font-black shadow-xl hover:bg-black transition-all active:scale-95 uppercase tracking-widest mt-4">Process Reservation</button>
                     </form>
                 </div>
             </div>
         </section>
 
-        <!-- PAGE 3: MY TICKETS PAGE -->
-        <section id="my-tickets-page" class="hidden fade-in">
-            <div class="flex justify-between items-center mb-8">
-                <h2 class="text-3xl font-bold text-gray-800">My Tickets</h2>
-                <button onclick="clearAllTickets()" id="clearBtn" class="text-red-500 hover:text-red-700 text-sm font-semibold hidden">
-                    <i class="fa-solid fa-trash mr-1"></i> Clear History
-                </button>
-            </div>
-
-            <!-- Empty State -->
-            <div id="no-tickets-msg" class="hidden text-center py-20 bg-white rounded-xl shadow-sm border border-gray-100">
-                <div class="inline-block p-6 rounded-full bg-gray-100 mb-4 text-gray-400">
-                    <i class="fa-solid fa-ticket-simple-slash text-4xl"></i>
+        <!-- VAULT PAGE SECTION -->
+        <section id="my-tickets-page" class="hidden fade-in px-4 py-12">
+            <div class="max-w-6xl mx-auto">
+                <div class="flex flex-col sm:flex-row justify-between items-center mb-12 gap-6">
+                    <div>
+                        <h2 class="text-5xl font-black text-burgundy uppercase tracking-tighter text-center sm:text-left">The Vault</h2>
+                        <p class="text-gray-400 font-bold text-xs tracking-[0.3em] mt-1 text-center sm:text-left uppercase">Digital Travel Repository</p>
+                    </div>
+                    <button onclick="clearAllTickets()" id="clearBtn" class="fa-solid fa-broom mr-2 bg-white border border-gray-100 text-burgundy-40 hover:text-red-600 px-6 py-3 rounded-full font-black text-[10px] uppercase tracking-widest transition-all hidden"> Delete All Tickets.</button>
                 </div>
-                <h3 class="text-xl font-bold text-gray-700 mb-2">No tickets found</h3>
-                <p class="text-gray-500 mb-6">You haven't booked any flights yet.</p>
-                <button onclick="navigateTo('book')" class="bg-blue-600 text-white px-6 py-2 rounded-full font-medium hover:bg-blue-700 transition">
-                    Book Your First Trip
-                </button>
-            </div>
-
-            <!-- Tickets Container (Filled by JS) -->
-            <div id="tickets-container" class="grid grid-cols-1 lg:grid-cols-2 gap-6">
-                <!-- Tickets will be injected here via JS -->
+                <div id="no-tickets-msg" class="hidden text-center py-24 bg-white rounded-[3rem] border-2 border-dashed border-gray-100">
+                    <i class="fa-solid fa-folder-closed text-5xl text-gray-100 mb-6"></i>
+                    <h3 class="text-xl font-black text-gray-300 uppercase tracking-widest">No Active Records</h3>
+                </div>
+                <div id="tickets-container" class="grid grid-cols-1 md:grid-cols-2 gap-10"></div>
             </div>
         </section>
 
-        <!-- PAGE 4: ABOUT PAGE -->
-        <section id="about-page" class="hidden fade-in">
-            <div class="bg-white rounded-2xl shadow-xl overflow-hidden max-w-4xl mx-auto">
-                <div class="bg-gray-800 h-32 relative">
-                    <!-- Banner decoration -->
-                    <div class="absolute right-10 top-5 text-gray-700 opacity-20 text-6xl">
-                        <i class="fa-solid fa-code"></i>
+        <!-- ABOUT PAGE SECTION -->
+        <section id="about-page" class="hidden fade-in px-4 py-12">
+            <div class="max-w-5xl mx-auto">
+                <div class="bg-white rounded-[3rem] shadow-2xl overflow-hidden border border-gray-100">
+                    <div class="relative bg-burgundy py-20 px-8 sm:px-16 flex flex-col md:flex-row items-center gap-10">
+                        <div class="w-44 h-44 rounded-3xl overflow-hidden border-4 border-champagne shadow-2xl bg-white">
+                            <img src="me.jpeg" alt="Abdirahman" class="w-full h-full object-cover grayscale">
+                        </div>
+                        <div class="text-center md:text-left">
+                            <h2 class="text-4xl sm:text-5xl font-black text-white tracking-tighter">Abdirahman <span class="text-champagne">Mohamed</span></h2>
+                            <p class="text-champagne font-bold tracking-[0.4em] uppercase text-xs mt-3">Front-End Developer</p>
+                        </div>
                     </div>
-                </div>
-                <div class="px-8 pb-8 relative">
-                    <!-- Profile Picture Placeholder -->
-                    <div class="w-24 h-24 bg-blue-500 rounded-full border-4 border-white absolute -top-12 flex items-center justify-center text-white text-3xl font-bold shadow-lg">
-                        ME
-
-                    </div>
-                    
-                    <div class="mt-16">
-                        <h2 class="text-3xl font-bold text-gray-800">About the Developer</h2>
-                        <p class="text-blue-600 font-medium mb-4">Full Stack Web Developer</p>
-                        
-                        <div class="space-y-4 text-gray-600">
-                            <!-- YOU CAN EDIT THIS TEXT FOR YOUR PORTFOLIO -->
-                            <A>
-                                Hello! My name is Abdirahman Mohamed Abdirahman. <br>
-                                &bull; A passionate developer dedicated to building clean, efficient, and user-friendly web applications. <br>
-                                &bull; This project, "SkyBound Travels," is a demonstration of my skills in HTML, CSS, and Vanilla JavaScript.
-                            </p>
-                            <p>
-                               &bull;  My goal is to create digital experiences that solve real-world problems. 
-                               I specialize in frontend design and logic implementation, ensuring that every pixel serves a purpose.
-                            </p>
-                        </div>
-
-                        <div class="mt-8 border-t pt-6">
-                            <h3 class="font-bold text-gray-800 mb-3">Skills Used in this Project</h3>
-                            <div class="flex flex-wrap gap-2">
-                                <span class="bg-gray-100 text-gray-700 px-3 py-1 rounded-full text-sm">HTML5</span>
-                                <span class="bg-gray-100 text-gray-700 px-3 py-1 rounded-full text-sm">CSS3</span>
-                                <span class="bg-gray-100 text-gray-700 px-3 py-1 rounded-full text-sm">Tailwind CSS</span>
-                                <span class="bg-gray-100 text-gray-700 px-3 py-1 rounded-full text-sm">JavaScript (ES6+)</span>
-                                <span class="bg-gray-100 text-gray-700 px-3 py-1 rounded-full text-sm">Local Storage</span>
-                                <span class="bg-gray-100 text-gray-700 px-3 py-1 rounded-full text-sm">DOM Manipulation</span>
-                            </div>
-                        </div>
-
-                        <div class="mt-8 flex gap-4">
-                            <!-- Social Links Placeholders -->
-                            <a href="#" class="text-gray-400 hover:text-blue-600 text-2xl"><i class="fa-brands fa-github"></i></a>
-                            <a href="#" class="text-gray-400 hover:text-blue-500 text-2xl"><i class="fa-brands fa-linkedin"></i></a>
-                            <a href="#" class="text-gray-400 hover:text-blue-400 text-2xl"><i class="fa-brands fa-twitter"></i></a>
-                        </div>
+                    <div class="p-10 sm:p-16">
+                        <p class="text-gray-600 leading-relaxed text-xl font-light max-w-2xl">I enjoy learning and building things with code. 
+                            I have experience with <span class="text-burgundy font-bold">"HTML, CSS, JavaScript, and Python"</span>. <br>
+                            Right now, I’m focused on improving my skills and working toward becoming an AI Engineer in the future, exploring how intelligent systems can solve real-world problems.
+                        </p>
                     </div>
                 </div>
             </div>
         </section>
-
     </main>
 
-    <!-- Footer -->
-    <footer class="bg-gray-800 text-gray-300 py-8 mt-auto">
-        <div class="container mx-auto px-4 text-center">
-            <div class="mb-4">
-                <i class="fa-solid fa-plane-departure text-2xl text-blue-400 mb-2"></i>
-                <p class="font-bold text-white text-lg">SkyBound Travels</p>
-            </div>
-            <p class="text-sm text-gray-500">&copy; 2024 SkyBound Projects. All data stored locally.</p>
+    <footer class="bg-white py-12 border-t border-gray-100 mt-auto">
+        <div class="max-w-7xl mx-auto px-4 text-center">
+            <p class="font-black text-burgundy text-xl uppercase tracking-[0.4em] mb-2">SkyBound</p>
+            <p class="text-[9px] text-gray-300 font-bold uppercase tracking-[0.5em]">&copy; 2026 Developed by Abdirahman</p>
         </div>
     </footer>
 
-    <!-- JavaScript Logic -->
     <script src="sky.js"></script>
 </body>
 </html>
